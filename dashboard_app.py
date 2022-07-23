@@ -25,18 +25,20 @@ sales_by_region.sort_values(ascending=False, inplace=True)
 # ==============================================================================
 # Sales by subcategory plot
 sales_by_subcategory_plot = px.bar(data_frame=sales_by_subcategory,
-    color=sales_by_subcategory.index)
+    color=sales_by_subcategory.index, text_auto='.3s',width=600,height=300)
+sales_by_subcategory_plot.update_traces(marker_color='#fff700')
 sales_by_subcategory_plot.update_layout(
-    xaxis_title='Sub Categorías',
+    xaxis_title=None,
     yaxis_title='Ventas',
     showlegend=False)
 sales_by_subcategory_plot.update_xaxes(tickangle=90)
 
 # Sales by region plot
 sales_by_region_plot = px.bar(data_frame=sales_by_region,
-    color=sales_by_region.index)
+    color=sales_by_region.index, text_auto='.3s',width=600,height=300)
+sales_by_region_plot.update_traces(marker_color='#fff700')
 sales_by_region_plot.update_layout(
-    xaxis_title='Región',
+    xaxis_title=None,
     yaxis_title='Ventas',
     showlegend=False)
 
@@ -48,16 +50,16 @@ app = dash.Dash()
 
 app.layout = html.Div(children=[
 
-    # Header
+    # Header -----------------------------------------------------------
     html.Div(children=[
-        html.H1("Retail Sales", style={'color':'white', 'margin':'0px', 'padding':'1.5% 0% 0% 1.5%'}),
-        html.H2("Report", style={'color':'white', 'margin':'0%', 'padding':'0% 0% 1% 1.5%'}),
-    ], style={'margin':'0% 0% .5% 0%','background':'#4e88f3'}),
+        html.H1("SMART BUY", style={'font-style':'Bold','color':'black', 'margin':'0px', 'padding':'1.5% 0% 0% 1.5%'}),
+        html.H2("Sales Report", style={'color':'black', 'font-size':'15px','margin':'0%', 'padding':'0% 0% 1% 1.5%'}),
+    ], style={'margin':'0px 0px 5px 0px','background':' #fff700','border-radius':'12px'}),
 
-    # Selección de región - dropdown
+    # Dropdown - Selección de región -----------------------------------
     html.Div(children=[
         html.Div(children=[
-            html.H2("Región", style={'margin':'0%', 'padding':'0%', 'color':'#4e88f3'}),
+            html.H2("Región", style={'margin':'0% 0px 0px 3px', 'padding':'0%', 'color':'black'}),
             dcc.Dropdown(id='region_dd',
                 options=[
                     {'label':'North','value':'Norte'},
@@ -65,38 +67,41 @@ app.layout = html.Div(children=[
                     {'label':'East', 'value':'Este'},
                     {'label':'West', 'value':'Oeste'},
                     {'label':'Central', 'value':'Central'}],
-                style={'padding':'0px','width':'200px', 'margin':'0 auto', 'display':'inline-block'})],
-                style={'width':'250px', 'height':'6 0px', 'display':'inline-block', 
-           'vertical-align':'top', 'border':'1px solid black', 'padding':'20px'})
+                style={'padding':'0px','width':'200px', 'margin':'0px 0px 0px 3px', 'display':'inline-block'})],
+        style={'width':'210px', 'height':'60px', 'border':'2px solid black', 'padding':'0px 9px 9px 3px',
+        'border-radius':'6px','background':'#fff700','margin':'0px'})
     ]),
     
-    # Div de los gráficos
+    # Div de los gráficos ----------------------------------------------
     html.Div(children=[
         # Gráfico de ventas por subcategorías
         html.Div(children=[
             html.Br(),
-            html.H3('Ventas por Sub-Categoría', 
-                style={'color':'#4e88f3','border':'2px solid #4e88f3', 'width':'97%', 
-                'margin':'0 auto', 'display':'inline-block'}),
+            html.H3('Ventas por Sub-Categoría', style={
+                'color':'black','background':'#fff700','margin':'0px', 
+                'border-radius':'6px', 'padding':'0px 0px 0px 30px'}),
             dcc.Graph(
                 id='sales_by_subcategory_fig',
                 figure=sales_by_subcategory_plot)
-            ],style={'width':'49%'}),
+            ],style={'width':'600px','height':'350px','background':'white','padding':'0px','border':'2px solid black',
+            'border-radius':'12px','margin':'6px 24px 24px 24px'}),
 
         # Gráfico de ventas por región
         html.Div(children=[
             html.Br(),
-            html.H3('Ventas por Región', 
-            style={ 'color':'#4e88f3','border':'2px solid #4e88f3', 'width':'0 auto', 'margin':'0px'}),
+            html.H3('Ventas por Región', style={ 
+                'color':'black','background':'#fff700','margin':'0px',
+                'border-radius':'6px','padding':'0px 0px 0px 30px'}),
             dcc.Graph(
                 id='sales_by_region_fig',
                 figure=sales_by_region_plot)
-            ], style={'width':'49%'})
-
+            ], style={'width':'600px','height':'350px','background':'white','padding':'0px','margin':'6px 24px 0px 24px','border':'2px solid black','border-radius':'12px'})
+    #
+    # cierre del div de los gráficos
     ], style={'display':'flex'})
     
-
-])
+# Cierre del div principal
+], style={'background':'#f4f4ec'})
 
 
 """@app.callback(
