@@ -25,7 +25,7 @@ sales_by_region.sort_values(ascending=False, inplace=True)
 # ==============================================================================
 # Sales by subcategory plot
 sales_by_subcategory_plot = px.bar(data_frame=sales_by_subcategory,
-    color=sales_by_subcategory.index, text_auto='.3s',width=600,height=300)
+    color=sales_by_subcategory.index, title="Ventas por Subcategoría", text_auto='.3s',width=600,height=300)
 sales_by_subcategory_plot.update_traces(marker_color='#fff700')
 sales_by_subcategory_plot.update_layout(
     xaxis_title=None,
@@ -35,7 +35,7 @@ sales_by_subcategory_plot.update_xaxes(tickangle=90)
 
 # Sales by region plot
 sales_by_region_plot = px.bar(data_frame=sales_by_region,
-    color=sales_by_region.index, text_auto='.3s',width=600,height=300)
+    color=sales_by_region.index, title="Ventas por Región",text_auto='.3s',width=600,height=300)
 sales_by_region_plot.update_traces(marker_color='#fff700')
 sales_by_region_plot.update_layout(
     xaxis_title=None,
@@ -76,26 +76,26 @@ app.layout = html.Div(children=[
     html.Div(children=[
         # Gráfico de ventas por subcategorías
         html.Div(children=[
-            html.Br(),
-            html.H3('Ventas por Sub-Categoría', style={
-                'color':'black','background':'#fff700','margin':'0px', 
-                'border-radius':'6px', 'padding':'0px 0px 0px 30px'}),
+            #html.Br(),
+            #html.H3('Ventas por Sub-Categoría', style={
+          #      'color':'black','background':'#fff700','margin':'0px', 
+          #      'border-radius':'6px', 'padding':'0px 0px 0px 30px'}),
             dcc.Graph(
                 id='sales_by_subcategory_fig',
                 figure=sales_by_subcategory_plot)
-            ],style={'width':'600px','height':'350px','background':'white','padding':'0px','border':'2px solid black',
+            ],style={'width':'600px','height':'300px','background':'white','padding':'0px','border':'2px solid black',
             'border-radius':'12px','margin':'6px 24px 24px 24px'}),
 
         # Gráfico de ventas por región
         html.Div(children=[
-            html.Br(),
-            html.H3('Ventas por Región', style={ 
-                'color':'black','background':'#fff700','margin':'0px',
-                'border-radius':'6px','padding':'0px 0px 0px 30px'}),
+            #html.Br(),
+            #html.H3('Ventas por Región', style={ 
+            #    'color':'black','background':'#fff700','margin':'0px',
+            #    'border-radius':'6px','padding':'0px 0px 0px 30px'}),
             dcc.Graph(
                 id='sales_by_region_fig',
                 figure=sales_by_region_plot)
-            ], style={'width':'600px','height':'350px','background':'white','padding':'0px','margin':'6px 24px 0px 24px','border':'2px solid black','border-radius':'12px'})
+            ], style={'width':'600px','height':'300px','background':'white','padding':'0px','margin':'6px 24px 0px 24px','border':'2px solid black','border-radius':'12px'})
     #
     # cierre del div de los gráficos
     ], style={'display':'flex'})
@@ -104,31 +104,27 @@ app.layout = html.Div(children=[
 ], style={'background':'#f4f4ec'})
 
 
-"""@app.callback(
-    Output(component_id='sales_by_subcategory_fig', component_property='figure'),
+@app.callback(
+    Output(component_id='sales_by_subcategory_figg', component_property='figure'),
     Input(component_id='region_dd', component_property='value')
 )
 
-
-def update_salesSubcategoryPlot(input_region):
+@app.callback()
+def update_salesSubcategoryPlot(input_region=None):
     #Set a default value
-    region_filter = 'North'
+    region_filter = input_region
     # Ensure the DataFrame is not overwritten
-    data_df = data.copy(deep=True)
+    data_df = sales_by_subcategory.copy(deep=True)
     # Create a conditional to filter the DataFrame if the input exists
     if region_filter:
-        region_filter = data[data['Region']==region_filter]
         data_df = data_df[data_df['Region']==region_filter]
-    sales_by_subcategory_fig = px.bar(data_frame=sales_by_subcategory,
-    color=sales_by_subcategory.index)
-    sales_by_subcategory_fig.update_layout(
-    xaxis_title='Sub Categorías',
-    yaxis_title='Ventas',
-    showlegend=False)
-    sales_by_subcategory_fig.update_xaxes(tickangle=90)
     
-    return sales_by_subcategory_fig
-"""
+    sales_by_subcategory_figg = px.bar(data_frame=data_df,
+    color=sales_by_subcategory.index)
+    
+    return sales_by_subcategory_figg
+
+
 if __name__ == '__main__':
     app.run_server(debug=True, 
                    host=os.getenv('IP', '0.0.0.0'), 
