@@ -11,7 +11,7 @@ from turtle import color, title
 # DATA
 # ==============================================================================
 data_df = pd.read_csv('supermart.csv')
-
+data_df['Date'] = pd.to_datetime(data_df['Order Date']).dt.to_period('M')
 
 # Dash App
 # ==============================================================================
@@ -26,7 +26,7 @@ app.layout = html.Div(children=[
             style={'font-style':'Bold','color':'black', 'margin':'0px', 'padding':'1.5% 0% 0% 1.5%'}),
         html.H2("Sales Report", 
             style={'color':'black', 'font-size':'81%','margin':'0%', 'padding':'0% 0% 1% 1.5%'}),
-    ], style={'width':'100%', 'height':'9%','margin':'0% 0% 0.6% 0%','border':'.5px solid gray','background':' #fff700','border-radius':'12px'}),
+    ], style={'width':'100vw', 'height':'9%','margin':'0% 0% 0.6% 0%','border':'.5px solid gray','background':' #fff700','border-radius':'12px'}),
 
 
     html.Div(children=[
@@ -48,8 +48,11 @@ app.layout = html.Div(children=[
         ]),
     ], style={'width':'20%', 'height':'1080px','float':'left', 'background':'white'}),
 
-    # Div de los gráficos ----------------------------------------------
+
+    # 1ra fila - Div de los gráficos - -------------------------------------
+    # ================================================
     html.Div(children=[
+
         # Gráfico de ventas por subcategorías
         html.Div(children=[
             dcc.Graph(id='sales_cat')
@@ -59,18 +62,37 @@ app.layout = html.Div(children=[
         # Gráfico de ventas por región
         html.Div(children=[
             dcc.Graph(id='sales_sub')
-            ], style={'width':'620px','height':'320px','background':'white','padding':'1%','margin':'6px 24px 0px 24px','border':'1px solid gray','border-radius':'12px'})
+            ], style={'width':'620px','height':'320px','background':'white','padding':'1%','margin':'6px 24px 0px 24px','border':'1px solid gray',
+                'border-radius':'12px'})
+
+    # 1ra fila - cierre del div de los gráficos
+    ], style={'display':'flex'}),
     
-    # cierre del div de los gráficos
-    ], style={'display':'flex'})
-    
-# Cierre del div principal
-], style={'background':'#f4f4ec'})
+
+    # 2da fila - Div de los gráficos 
+    # =========================================================
+    html.Div(children=[
+
+        # Line Plot: Order Date
+        html.Div(children=[
+            dcc.Graph(id="order_line")
+        ], style={'width':'620px','height':'320px','background':'white','padding':'0','margin':'6px 24px 0px 24px','border':'1px solid gray',
+            'border-radius':'12px'})
+
+        # Plot: 
+
+
+    # 2da fila: cierre del div
+    ], style={'display':'flex'}),
+
+# Div Principal - Layout Cierre
+], style={'width':'100%','background':'#f4f4ec'})
 
 
 @app.callback(
     Output(component_id='sales_cat', component_property='figure'),
     Output(component_id='sales_sub', component_property='figure'),
+    Output(component_id='order_line', component_property='figure'),
     Input(component_id='region_dd', component_property='value')
 )
 def updatePlots(region):
@@ -94,7 +116,14 @@ def updatePlots(region):
     sub_sales_fig.update_traces(marker_color='#fff700')
     sub_sales_fig.update_layout(xaxis_title=None,yaxis_title='Ventas',showlegend=False)
     
-    return cat_sales_fig, sub_sales_fig
+    #lineplot - order date
+    order_sales = data.groupby(['Date','Region'])['Sales'].sum()
+    order_sales_fig = px.line(data_frame=order_sales.values, title="Ventas por Mes",
+                width=600, height=300)
+    order_sales_fig.update_traces(marker_color='#fff700')
+    order_sales_fig.update_layout(xaxis_title=None,yaxis_title='Ventas',showlegend=False)
+    
+    return cat_sales_fig, sub_sales_fig, order_sales_fig
 
 
 if __name__ == '__main__':
