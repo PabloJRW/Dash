@@ -7,17 +7,16 @@ from dash import dcc
 from dash import html
 from turtle import color, title
 
-
+ 
 # DATA
 # ==============================================================================
-yt_top = pd.read_csv('top_200_youtubers.csv')
-yt_top = yt_top.drop_duplicates(subset='Channel Name', keep='last')
+yt_top = pd.read_csv('yt_top.csv')
 
 # Dash App
 # ==============================================================================
 app = dash.Dash()
 
-
+ 
 app.layout = html.Div(children=[
 
     # Header -----------------------------------------------------------
@@ -30,22 +29,26 @@ app.layout = html.Div(children=[
 
 
     html.Div(children=[
-        # Dropdown - Selección de región -----------------------------------
+        # Dropdown - Selección de país -----------------------------------
         html.Div(children=[
             html.Div(children=[
                 html.H2("Country", style={'margin':'0% 0% 0% 6%', 'padding':'0%', 'color':'white'}),
-                dcc.Dropdown(id='country_dd',
-                    options=[
-                        {'label':'Todas ', 'value':False},
-                        {'label':'Norte','value':'North'},
-                        {'label':'Sur','value':'South'},
-                        {'label':'Este', 'value':'East'},
-                        {'label':'Oeste', 'value':'West'},
-                        {'label':'Central', 'value':'Central'}],
-                    style={'padding':'0px','width':'200px', 'margin':'0px 0px 0px 3px', 'display':'inline-block'})],
+                dcc.Dropdown(yt_top.Country.unique(), id='country_dd')
+            ],
             style={'width':'210px', 'height':'60px', 'border':'1px solid gray', 'padding':'0px 9px 9px 3px',
             'border-radius':'6px','background':'#FF0000','margin':'12px 0px 0px 12px'})
         ]),
+
+        # Dropdown - Selección de país -----------------------------------
+        html.Div(children=[
+            html.Div(children=[
+                html.H2("Category", style={'margin':'0% 0% 0% 6%', 'padding':'0%', 'color':'white'}),
+                dcc.Dropdown(yt_top.Category.unique(), id='category_dd')
+            ],
+            style={'width':'210px', 'height':'60px', 'border':'1px solid gray', 'padding':'0px 9px 9px 3px',
+            'border-radius':'6px','background':'#FF0000','margin':'12px 0px 0px 12px'})
+        ]),
+
     ], style={'width':'20%', 'height':'1080px','float':'left', 'background':'white'}),
 
 
@@ -98,36 +101,42 @@ app.layout = html.Div(children=[
     Output(component_id='maintopics', component_property='figure'),
     Output(component_id='topfollowers', component_property='figure'),
     Output(component_id='likes', component_property='figure'),
-    Input(component_id='country_dd', component_property='value')
+    Input(component_id='country_dd', component_property='value'),
+    Input(component_id='category_dd', component_property='value')
 )
-def updatePlots(region):
+def updatePlots(country=None, category=None):
     # Ensure the DataFrame is not overwritten
     data = yt_top.copy(deep=True)
+
     # Create a conditional to filter the DataFrame if the input exists
-    if region:
-        data = data[data['Region']==region]
-    
+    if country and category:
+        data = data[(data['Country']==country) & (data['Category']==category)]
+    elif country:
+        data = data[data['Country']==country] 
+    elif category:
+        data = data[data['Category']==category]
+ 
      # plot - ventas por categorias
-    mv_category = yt_top.value_counts('Main Video Category').head(5)
+    mv_category = data['Main Video Category'].value_counts().head(5)
     mv_category_fig = px.bar(mv_category, title="Top Categories", width=600, height=300)
     mv_category_fig.update_traces(marker_color='#FF0000')
     mv_category_fig.update_layout(xaxis_title=None,yaxis_title='Number of Channels',showlegend=False)
     
     # plot - ventas por subcategorias
-    main_topics = yt_top.value_counts('Main topic').head(5)
+    main_topics = data['Main topic'].value_counts().head(5)
     main_topics_fig = px.bar(main_topics, title="Top Topics", width=600, height=300)
     main_topics_fig.update_traces(marker_color='#FF0000')
     main_topics_fig.update_layout(xaxis_title=None,yaxis_title='number of Channels',showlegend=False)
     
     #lineplot - order date
-    top_followers = yt_top[['Channel Name','followers']].sort_values('followers', ascending=False).head()
+    top_followers = data[['Channel Name','followers']].sort_values('followers', ascending=False).head()
     top_followers_fig = px.bar(top_followers, x="Channel Name", y="followers", title="Top Followers",
         text_auto='.2s', width=600, height=300)
     top_followers_fig.update_traces(marker_color='#FF0000')
     top_followers_fig.update_layout(xaxis_title=None,yaxis_title='Number of Followers',showlegend=False)
     
     #
-    top_likes = yt_top[['Channel Name','Likes']].sort_values('Likes', ascending=False).head(5)
+    top_likes = data[['Channel Name','Likes']].sort_values('Likes', ascending=False).head(5)
     top_likes_fig = px.bar(top_likes, x="Channel Name", y="Likes", width=600, height=300)
     top_likes_fig.update_traces(marker_color='#FF0000')
     top_likes_fig.update_layout(xaxis_title=None,yaxis_title='Number of Likes',showlegend=False)
@@ -141,4 +150,4 @@ if __name__ == '__main__':
                    port=int(os.getenv('PORT', 4444)))
 
 
-                   dshiuf
+                   
